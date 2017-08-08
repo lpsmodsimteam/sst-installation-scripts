@@ -8,6 +8,9 @@ echo "This Script will install SST Version $VERSION ..."
 echo " "
 echo "Let us set up the environment first ..."
 echo " "
+
+# Check Known Dependencies from Clean Install Tests
+
 DEPEND=TRUE
 if test -f /usr/bin/libtoolize;
 then
@@ -67,7 +70,7 @@ else
    echo "gcc is missing ...."
    echo "Please install gcc...."
    echo "CENTOS: sudo yum install gcc"
-   echo "UBUNTU: sudo apt install build-essential"
+   echo "UBUNTU: sudo apt install gcc"
    DEPEND=FALSE
 fi
 
@@ -79,6 +82,17 @@ else
    echo "Please install gcc...."
    echo "CENTOS: sudo yum install g++"
    echo "UBUNTU: sudo apt install g++"
+   DEPEND=FALSE
+fi
+
+if test -f /usr/bin/m4;
+then
+   echo "m4 is installed ..... "
+else
+   echo "m4 is missing ...."
+   echo "Please install gcc...."
+   echo "CENTOS: sudo yum install g++"
+   echo "UBUNTU: sudo apt install m4"
    DEPEND=FALSE
 fi
 
