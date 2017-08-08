@@ -4,6 +4,9 @@
 
 VERSION=7.1
 
+OS=$(cat /etc/*-release | grep "^ID=" | tr -d '"' | tr -d 'ID=')
+echo $OS
+
 echo "This Script will install SST Version $VERSION ..."
 echo " "
 echo "Let us set up the environment first ..."
@@ -22,21 +25,6 @@ else
    echo "UBUNTU: sudo apt install libtool-bin"
    DEPEND=FALSE
 fi
-if test -d /usr/share/libtool/libltdl;
-then
-   echo "Libtool is installed and configured properly ...."
-else
-   echo "Libtool may be missing development packages ..."
-   echo "Suggest the following....."
-   echo "For CENTOS:"
-   echo "sudo yum install libtool-ltdl-devel.x86_64"
-   echo "or"
-   echo "For UBUNTU"
-   echo "sudo apt install libltdl-dev"
-   echo " "
-   DEPEND=FALSE
-fi
-
 if test -d /usr/share/libtool/libltdl;
 then
    echo "Libtool is installed and configured properly ...."
@@ -93,6 +81,28 @@ else
    echo "Please install gcc...."
    echo "CENTOS: sudo yum install g++"
    echo "UBUNTU: sudo apt install m4"
+   DEPEND=FALSE
+fi
+
+if test -f /usr/bin/autoconf;
+then
+   echo "auto tools are installed ..... "
+else
+   echo "auto tools are missing ...."
+   echo "Please install autoconf...."
+   echo "CENTOS: sudo yum install g++"
+   echo "UBUNTU: sudo apt install autoconf"
+   DEPEND=FALSE
+fi
+
+if test -f /usr/bin/python-config;
+then
+   echo "python-config is installed ..... "
+else
+   echo "python-config is missing ...."
+   echo "Please install python-dev...."
+   echo "CENTOS: sudo yum install python-devel"
+   echo "UBUNTU: sudo apt install python-dev"
    DEPEND=FALSE
 fi
 
