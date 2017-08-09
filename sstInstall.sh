@@ -5,7 +5,6 @@
 VERSION=7.1
 
 OS=$(cat /etc/*-release | grep "^ID=" | tr -d '"' | tr -d 'ID=')
-echo $OS
 
 echo "This Script will install SST Version $VERSION ..."
 echo " "
@@ -24,6 +23,9 @@ m4test=true
 autoconftest=true
 pythontest=true
 wgettest=true
+graphviztest=true
+python3test=true
+qttest=true
 
 if test -f /usr/bin/gcc;
 then
@@ -48,23 +50,15 @@ then
    echo "libtoolize is installed ..... "
 else
    echo "libtoolize is missing ...."
-   echo "Please install libtoolize...."
-   echo "UBUNTU: sudo apt install libtool-bin"
    DEPEND=false
    libtoolizetest=false
 fi
+
 if test -d /usr/share/libtool/libltdl;
 then
    echo "Libtool is installed and configured properly ...."
 else
    echo "Libtool may be missing development packages ..."
-   echo "Suggest the following....."
-   echo "For CENTOS:"
-   echo "sudo yum install libtool-ltdl-devel.x86_64"
-   echo "or"
-   echo "For UBUNTU"
-   echo "sudo apt install libltdl-dev"
-   echo " "
    DEPEND=false
    libltdltest=false
 fi
@@ -74,8 +68,6 @@ then
    echo "git is installed ..... "
 else
    echo "git is missing ......"
-   echo "Please install git...."
-   echo "UBUNTU: sudo apt install git"
    DEPEND=false
    gittest=false
 fi
@@ -85,8 +77,6 @@ then
    echo "m4 is installed ..... "
 else
    echo "m4 is missing ...."
-   echo "Please install m4...."
-   echo "UBUNTU: sudo apt install m4"
    DEPEND=false
    m4test=false
 fi
@@ -96,8 +86,6 @@ then
    echo "auto tools are installed ..... "
 else
    echo "auto tools are missing ...."
-   echo "Please install autoconf...."
-   echo "UBUNTU: sudo apt install autoconf"
    DEPEND=false
    autoconftest=false
 fi
@@ -107,11 +95,26 @@ then
    echo "python-config is installed ..... "
 else
    echo "python-config is missing ...."
-   echo "Please install python-dev...."
-   echo "CENTOS: sudo yum install python-devel"
-   echo "UBUNTU: sudo apt install python-dev"
    DEPEND=false
    pythontest=false
+fi
+
+if test -f /usr/bin/python3;
+then
+   echo "python3 is installed ..... "
+   qt=$(python3 -c "import PyQt5")
+   if [[ !  -z  $qt  ]]
+   then
+      echo "PyQt5 is missing ......"
+      DEPEND=false
+      qttest=false
+   else
+      echo "PyQt5 is installed ....."
+    fi
+else
+   echo "python3 is missing ...."
+   DEPEND=false
+   python3test=false
 fi
 
 if test -f /usr/bin/wget;
@@ -119,20 +122,120 @@ then
    echo "wget is installed ..... "
 else
    echo "wget is missing ...."
-   echo "Please install wget...."
-   echo "CENTOS: sudo yum install python-devel"
    DEPEND=false
    wgettest=false
 fi
 
-if [ $DEPEND == true ]
+if test -f /usr/bin/dot;
+then
+   echo "graphviz is installed ..... "
+else
+   echo "graphviz is missing ...."
+   DEPEND=false
+   graphviztest=false
+fi
+   
+if [ $DEPEND == true  ]
 then
    echo "Proceeding with SST Install......"
    echo " "
 else
-   echo "One or more dependencies are missing...."
-   echo "Please follow the suggestions given above for missing dependencies....."
+if [ $OS == centos ]
+   then
+      if [ $gcctest == false ] || [ $gpptest == false ] || [ $m4test == false ] || [ $autoconftest == false ] || [ $libtoolizetest == false ] 
+      then
+         echo "Try running sudo yum group install \"Development Tools\""
+         echo " "
+      fi
+      if [ $pythontest == false ]
+      then
+         echo "Try running sudo yum install python-devel"
+         echo " "
+      fi
+      if [ $python3test == false ]
+      then
+         echo "Try running:"
+         echo "sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm"
+         echo "sudo yum -y install python36u"
+         echo "This will install python3.6...."
+         echo "sudo yum -y install python36u-pip"
+         echo "This will install python36u-pip....."
+         echo "sudo pip3.6 install pyqt5"
+         echo "This will install pyqt5...."
+         echo "sudo ln -s /usr/bin/python3.6 /usr/bin/python3"
+         echo "This will create a logical link to python3 ......"         
+      fi
+      if [ $libltdltest == false ]
+      then
+         echo "Try running sudo yum install libtool-ltdl-devel.x86_64"
+         echo " "
+      fi
+      if [ $wgettest == false ]
+      then
+         echo "Try running sudo yum install wget"
+         echo " "
+      fi
+      if [ $graphviztest == false ]
+      then
+         echo "Try running sudo yum install graphviz"
+         echo " "
+      fi
+exit
+fi
+   if [ $OS == ubuntu ]
+   then
+      if [ $gcctest == false ] || [ $gpptest == false ] 
+      then
+         echo "Try running sudo apt install build-essential"
+         echo " "
+      fi
+      if [ $m4test == false ]
+      then
+         echo "Try running sudo apt install m4"
+         echo " "
+      fi
+      if [ $pythontest == false ]
+      then
+         echo "Try running sudo apt install python-dev"
+         echo " "
+      fi
+      if [ $autoconftest == false ]
+      then
+         echo "Try running sudo apt install autoconf"
+         echo " "
+      fi
+      if [ $libltdltest == false ]
+      then
+         echo "Try running sudo apt install libtldl-dev"
+         echo " "
+      fi
+      if [ $libtoolizetest == false ]
+      then
+         echo "Try running sudo apt install libtool-bin"
+         echo " "
+      fi
+      if [ $gittest == false ]
+      then
+         echo "Try running sudo apt install git"
+         echo " "
+      fi
+      if [ $graphviztest == false ]
+      then
+         echo "Try running sudo apt install graphviz"
+         echo " "
+      fi
+      if [ $qttest == false ]
+      then
+         echo "Try running sudo apt install python3-pyqt5"
+         echo " "
+      fi
    exit
+   fi
+   if [ $OS != centos ] || [ $OS != ubuntu ]
+   then
+      echo "Use your the package installation tool to install missing packages"
+      exit
+   fi  
 fi
 # Request User input
 
@@ -263,6 +366,9 @@ make all install
 if test -x "$SST_CORE_HOME/bin/sst" 
 then
    echo "*****SST INSTALLATION WAS SUCCESSFUL*****"
+   echo "Your .bashrc has been updated with the correct environment variables"
+   echo "including PATH variable"
+   echo "Please source your .bashrc (source .bashrc) before running SST."
 else
    echo "*****SST INSTALLATION WAS UNSUCCESSFUL*****"
    echo "Cleaning up directories ...."
