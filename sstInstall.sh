@@ -14,16 +14,44 @@ echo " "
 
 # Check Known Dependencies from Clean Install Tests
 
-DEPEND=TRUE
+DEPEND=true
+gcctest=true
+gpptest=true
+libtoolizetest=true
+libltdltest=true
+gittest=true
+m4test=true
+autoconftest=true
+pythontest=true
+wgettest=true
+
+if test -f /usr/bin/gcc;
+then
+   echo "gcc is installed ..... "
+else
+   echo "gcc is missing ...."   
+   DEPEND=false
+   gcctest=false
+fi
+
+if test -f /usr/bin/g++;
+then
+   echo "g++ is installed ..... "
+else
+   echo "g++ is missing ...."
+   gpptest=false
+   DEPEND=false
+fi
+
 if test -f /usr/bin/libtoolize;
 then
    echo "libtoolize is installed ..... "
 else
    echo "libtoolize is missing ...."
    echo "Please install libtoolize...."
-   echo "CENTOS: sudo yum install libtool-bin" # Need to check CENTOS 
    echo "UBUNTU: sudo apt install libtool-bin"
-   DEPEND=FALSE
+   DEPEND=false
+   libtoolizetest=false
 fi
 if test -d /usr/share/libtool/libltdl;
 then
@@ -37,7 +65,8 @@ else
    echo "For UBUNTU"
    echo "sudo apt install libltdl-dev"
    echo " "
-   DEPEND=FALSE
+   DEPEND=false
+   libltdltest=false
 fi
 
 if test -f /usr/bin/git;
@@ -46,31 +75,9 @@ then
 else
    echo "git is missing ......"
    echo "Please install git...."
-   echo "CENTOS: sudo yum install git"
    echo "UBUNTU: sudo apt install git"
-   DEPEND=FALSE
-fi
-
-if test -f /usr/bin/gcc;
-then
-   echo "gcc is installed ..... "
-else
-   echo "gcc is missing ...."
-   echo "Please install gcc...."
-   echo "CENTOS: sudo yum install gcc"
-   echo "UBUNTU: sudo apt install gcc"
-   DEPEND=FALSE
-fi
-
-if test -f /usr/bin/g++;
-then
-   echo "g++ is installed ..... "
-else
-   echo "g++ is missing ...."
-   echo "Please install gcc...."
-   echo "CENTOS: sudo yum install g++"
-   echo "UBUNTU: sudo apt install g++"
-   DEPEND=FALSE
+   DEPEND=false
+   gittest=false
 fi
 
 if test -f /usr/bin/m4;
@@ -78,10 +85,10 @@ then
    echo "m4 is installed ..... "
 else
    echo "m4 is missing ...."
-   echo "Please install gcc...."
-   echo "CENTOS: sudo yum install g++"
+   echo "Please install m4...."
    echo "UBUNTU: sudo apt install m4"
-   DEPEND=FALSE
+   DEPEND=false
+   m4test=false
 fi
 
 if test -f /usr/bin/autoconf;
@@ -90,9 +97,9 @@ then
 else
    echo "auto tools are missing ...."
    echo "Please install autoconf...."
-   echo "CENTOS: sudo yum install g++"
    echo "UBUNTU: sudo apt install autoconf"
-   DEPEND=FALSE
+   DEPEND=false
+   autoconftest=false
 fi
 
 if test -f /usr/bin/python-config;
@@ -103,10 +110,22 @@ else
    echo "Please install python-dev...."
    echo "CENTOS: sudo yum install python-devel"
    echo "UBUNTU: sudo apt install python-dev"
-   DEPEND=FALSE
+   DEPEND=false
+   pythontest=false
 fi
 
-if [ $DEPEND == TRUE ]
+if test -f /usr/bin/wget;
+then
+   echo "wget is installed ..... "
+else
+   echo "wget is missing ...."
+   echo "Please install wget...."
+   echo "CENTOS: sudo yum install python-devel"
+   DEPEND=false
+   wgettest=false
+fi
+
+if [ $DEPEND == true ]
 then
    echo "Proceeding with SST Install......"
    echo " "
