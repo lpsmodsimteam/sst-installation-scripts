@@ -26,6 +26,7 @@ wgettest=true
 graphviztest=true
 python3test=true
 
+# gcc test
 if test -f /usr/bin/gcc;
 then
    echo "gcc is installed ..... "
@@ -35,6 +36,7 @@ else
    gcctest=false
 fi
 
+# g++ test
 if test -f /usr/bin/g++;
 then
    echo "g++ is installed ..... "
@@ -44,6 +46,7 @@ else
    DEPEND=false
 fi
 
+# libtoolize test
 if test -f /usr/bin/libtoolize;
 then
    echo "libtoolize is installed ..... "
@@ -53,6 +56,7 @@ else
    libtoolizetest=false
 fi
 
+# libltdl test
 if test -d /usr/share/libtool/libltdl;
 then
    echo "Libtool is installed and configured properly ...."
@@ -62,6 +66,7 @@ else
    libltdltest=false
 fi
 
+# git test
 if test -f /usr/bin/git;
 then
    echo "git is installed ..... "
@@ -71,6 +76,7 @@ else
    gittest=false
 fi
 
+# m4 test
 if test -f /usr/bin/m4;
 then
    echo "m4 is installed ..... "
@@ -80,6 +86,7 @@ else
    m4test=false
 fi
 
+# autoconf test
 if test -f /usr/bin/autoconf;
 then
    echo "auto tools are installed ..... "
@@ -89,6 +96,7 @@ else
    autoconftest=false
 fi
 
+# python-config test
 if test -f /usr/bin/python-config;
 then
    echo "python-config is installed ..... "
@@ -98,6 +106,7 @@ else
    pythontest=false
 fi
 
+# python3 test
 if test -f /usr/bin/python3;
 then
    echo "python3 is installed ..... "
@@ -107,6 +116,7 @@ else
    python3test=false
 fi
 
+# wget test
 if test -f /usr/bin/wget;
 then
    echo "wget is installed ..... "
@@ -116,6 +126,7 @@ else
    wgettest=false
 fi
 
+# graphviz test
 if test -f /usr/bin/dot;
 then
    echo "graphviz is installed ..... "
@@ -123,6 +134,17 @@ else
    echo "graphviz is missing ...."
    DEPEND=false
    graphviztest=false
+fi
+
+# PyQt5 test
+qt=$(python3 -c "import PyQt5" 2>&1)
+
+if [[ -z "$qt" ]]
+then
+   echo "PyQt5 is installed ......"
+else
+   echo "PyQt5 is missing ....."
+   DEPEND=false
 fi
    
 if [ $DEPEND == true  ]
@@ -355,22 +377,6 @@ then
    echo "Your .bashrc has been updated with the correct environment variables"
    echo "including PATH variable"
    echo "Please source your .bashrc (source .bashrc) before running SST."
-   echo " "
-   echo "The SST GUI uses PyQt5 to test if you have it installed simply run"
-   echo "python3 -c \"import PyQt5\""
-   echo "If it returns a Python error run the following to install PyQt5"
-   if [ $OS == ubuntu ]
-   then
-      echo "sudo apt install python3-pyqt5"
-   fi
-   if [ $OS == centos ]
-   then
-      echo "sudo pip3 install pyqt5"
-   fi
-   if [ $OS != centos ] || [ $OS != ubuntu ]
-   then
-      echo "Use your the package installation tool to install PyQt5....."
-   fi
 else
    echo "*****SST INSTALLATION WAS UNSUCCESSFUL*****"
    echo "Cleaning up directories ...."
