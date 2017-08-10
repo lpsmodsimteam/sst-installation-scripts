@@ -25,7 +25,6 @@ pythontest=true
 wgettest=true
 graphviztest=true
 python3test=true
-qttest=true
 
 if test -f /usr/bin/gcc;
 then
@@ -102,15 +101,6 @@ fi
 if test -f /usr/bin/python3;
 then
    echo "python3 is installed ..... "
-   qt=$(python3 -c "import PyQt5")
-   if [[ !  -z  $qt  ]]
-   then
-      echo "PyQt5 is missing ......"
-      DEPEND=false
-      qttest=false
-   else
-      echo "PyQt5 is installed ....."
-    fi
 else
    echo "python3 is missing ...."
    DEPEND=false
@@ -165,6 +155,7 @@ if [ $OS == centos ]
          echo "sudo ln -s /usr/bin/python3.6 /usr/bin/python3"
          echo "This will create a logical link to python3 ......"         
       fi
+
       if [ $libltdltest == false ]
       then
          echo "Try running sudo yum install libtool-ltdl-devel.x86_64"
@@ -204,9 +195,9 @@ fi
          echo "Try running sudo apt install autoconf"
          echo " "
       fi
-      if [ $libltdltest == false ]
+      if [ $libltdltest == false ] && [ $libtoolizetest == true ]
       then
-         echo "Try running sudo apt install libtldl-dev"
+         echo "Try running sudo apt install libltldl-dev"
          echo " "
       fi
       if [ $libtoolizetest == false ]
@@ -222,11 +213,6 @@ fi
       if [ $graphviztest == false ]
       then
          echo "Try running sudo apt install graphviz"
-         echo " "
-      fi
-      if [ $qttest == false ]
-      then
-         echo "Try running sudo apt install python3-pyqt5"
          echo " "
       fi
    exit
@@ -369,6 +355,22 @@ then
    echo "Your .bashrc has been updated with the correct environment variables"
    echo "including PATH variable"
    echo "Please source your .bashrc (source .bashrc) before running SST."
+   echo " "
+   echo "The SST GUI uses PyQt5 to test if you have it installed simply run"
+   echo "python3 -c \"import PyQt5\""
+   echo "If it returns a Python error run the following to install PyQt5"
+   if [ $OS == ubuntu ]
+   then
+      echo "sudo apt install python3-pyqt5"
+   fi
+   if [ $OS == centos ]
+   then
+      echo "sudo pip3 install pyqt5"
+   fi
+   if [ $OS != centos ] || [ $OS != ubuntu ]
+   then
+      echo "Use your the package installation tool to install PyQt5....."
+   fi
 else
    echo "*****SST INSTALLATION WAS UNSUCCESSFUL*****"
    echo "Cleaning up directories ...."
