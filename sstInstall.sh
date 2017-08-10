@@ -126,6 +126,15 @@ else
    wgettest=false
 fi
 
+# OpenMPI test
+if test -f /usr/bin/ompi_info;
+then
+   echo "OpenMPI is installed ..... "
+else
+   echo "OpenMPI is missing ...."
+   DEPEND=false
+fi
+
 # graphviz test
 if test -f /usr/bin/dot;
 then
@@ -269,21 +278,6 @@ else
     INSTALL=$HOME/local
 fi
 
-echo -n "Do you want to install OpenMPI 1.8.8 (Highly Recommended) [Y]>>"
-
-read INPUT
-
-if [ -n "$INPUT" ];then
-    MPIFLAG=$INPUT
-else
-    MPIFLAG=Y
-fi
-
-if [ $MPIFLAG == N ] ||[ $MPIFLAG == n ] || [ $MPIFLAG == No ] || [ $MPIFLAG == no ] || [ $MPIFLAG == NO ];then
-   echo " "
-   echo "With OpenMPI disabled you will be unable to run multi-node simulations"
-fi
-
 # Create Directories
 
 echo " "
@@ -300,27 +294,8 @@ mkdir $INSTALL/packages
 
 echo "Setting up environment variables in .bashrc ......"
 echo " ">>$HOME/.bashrc
-echo "# Below are the environment variables created by the SST install">>$HOME/.bashrc
+echo "# BEGIN sstInstall.sh Environment Variables">>$HOME/.bashrc
 echo " ">>$HOME/.bashrc
-echo "export MPICC=mpicc">>$HOME/.bashrc
-export MPICC=mpicc
-echo "export MPICXX=mpicxx">>$HOME/.bashrc
-export MPICXX=mpicxx
-echo " ">>$HOME/.bashrc
-if [ $MPIFLAG == Y ] ||[ $MPIFLAG == y ] || [ $MPIFLAG == Yes ] || [ $MPIFLAG == yes ] || [ $MPIFLAG == YES ];then
-   echo " "
-   echo "export MPIHOME=$INSTALL/packages/OpenMPI-1.8.8">>$HOME/.bashrc
-   export MPIHOME=$INSTALL/packages/OpenMPI-1.8.8
-   echo "export PATH=\$MPIHOME/bin:\$PATH">>$HOME/.bashrc
-   export PATH=$MPIHOME/bin:$PATH
-   echo "export LD_LIBRARY_PATH=\$MPIHOME/lib:\$LD_LIBRARY_PATH">>$HOME/.bashrc
-   export LD_LIBRARY_PATH=$MPIHOME/lib:$LD_LIBRARY_PATH
-   echo "export DYLD_LIBRARY_PATH=\$MPIHOME/lib:\$DYLD_LIBRARY_PATH">>$HOME/.bashrc
-   export DYLD_LIBRARY_PATH=$MPIHOME/lib:$DYLD_LIBRARY_PATH
-   echo "export MANPATH=\$MPIHOME/share/man:\$DYLD_LIBRARY_PATH">>$HOME/.bashrc
-   export MANPATH=$MPIHOME/share/man:$DYLD_LIBRARY_PATH
-   echo " ">>$HOME/.bashrc
-fi
 echo "export SST_CORE_HOME=$INSTALL/sstcore">>$HOME/.bashrc
 export SST_CORE_HOME=$INSTALL/sstcore
 echo "export PATH=\$SST_CORE_HOME/bin:\$PATH">>$HOME/.bashrc
@@ -329,21 +304,7 @@ echo "export SST_ELEMENTS_HOME=$INSTALL/sstelements">>$HOME/.bashrc
 export SST_ELEMENTS_HOME=$INSTALL/sstelements
 echo "export PATH=\$SST_ELEMENTS_HOME/bin:\$PATH">>$HOME/.bashrc
 export PATH=$SST_ELEMENTS_HOME/bin:$PATH
-
-
-# Install OpenMPI
-
-if [ $MPIFLAG == Y ] ||[ $MPIFLAG == y ] || [ $MPIFLAG == Yes ] || [ $MPIFLAG == yes ] || [ $MPIFLAG == YES ];then
-   echo "Installing OpenMPI 1.8.8 ....."
-   echo " "
-   cd $DOWNLOAD/src
-   wget https://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.8.tar.gz
-   tar xfz openmpi-1.8.8.tar.gz
-   cd openmpi-1.8.8
-   ./configure --prefix=$MPIHOME
-   make all install
-   cd
-fi
+echo "# END sstInstall.sh Environment Variables">>$HOME/.bashrc
 
 # Install SST Core
 
@@ -384,6 +345,6 @@ else
    rm -rf $DOWNLOAD
    rm -rf $INSTALL
    echo "Cleaning up .bashrc ....."
-   sed -i "$(($(wc -l < ~/.bashrc)-14)),\$d" ~/.bashrc
+   sed -i '/# BEGIN sstInstall.sh Environment Variables/,/# END sstInstall.sh Environment Variables/d' ~/.bashrc
 fi
 
