@@ -1,322 +1,228 @@
 #!/bin/bash
 
-# This script will install SST
+echo -e "\nThis Script will install SST\n"
+echo -e "Checking for Dependencies\n"
 
-VERSION=7.1
-
-OS=$(cat /etc/*-release | grep "^ID=" | tr -d '"' | tr -d 'ID=')
-
-#if mac prefix else prefix
-
-echo "This Script will install SST Version $VERSION ..."
-echo " "
-echo "Let us set up the environment first ..."
-echo " "
-
-# Check Known Dependencies from Clean Install Tests
-
+Kernel=$(uname -s)
 DEPEND=true
+prefix=/usr/bin
 
+# Kernel Specific tests
+if [[ $Kernel == "Linux" ]]; then
+	OS=$(cat /etc/*-release | grep "^ID=" | tr -d '"' | tr -d 'ID=')
+	version=$(cat /etc/*-release | grep "^VERSION_ID=" | tr -d '"' | tr -d 'VERSION_ID=')
+	bashrc=~/.bashrc
+	sed -i '/# BEGIN sstInstall.sh Environment Variables/,/# END sstInstall.sh Environment Variables/d' $bashrc
+	
+	# libtoolize test
+	if test -f $prefix/libtoolize; then
+		echo "libtoolize is installed ..."
+	else
+		echo "libtoolize is missing ..."
+		DEPEND=false
+	fi
+	# libltdl test
+	if test -d /usr/share/libtool/libltdl; then
+		echo "Libtool is installed and configured properly ..."
+	else
+		echo "Libtool may be missing development packages ..."
+		DEPEND=false
+	fi
+	# OpenMPI test
+	if [[ "${OS,,}" == "ubuntu" ]]; then
+		if test -f $prefix/ompi_info; then
+			echo "OpenMPI is installed ..."
+		else
+			echo "OpenMPI is missing ..."
+			DEPEND=false
+		fi
+	elif [[ "${OS,,}" == "centos" ]]; then
+		if test -f /usr/lib64/openmpi/bin/ompi_info; then
+			echo "OpenMPI is installed ..."
+		else
+			echo "OpenMPI is missing ..."
+			DEPEND=false
+		fi
+	fi
+	
+elif [[ $Kernel == "Darwin" ]]; then
+	prefix=/usr/local/bin
+	version=$(sw_vers -productVersion)
+	bashrc=~/.bash_profile
+	sed -i '' '/# BEGIN sstInstall.sh Environment Variables/,/# END sstInstall.sh Environment Variables/d' $bashrc
+	
+	if (( $(hostname | wc -c) > 15 )); then
+		echo -e "\n!!! Hostname can only be 14 characters on Mac !!!"
+		INPUT=""
+		while [[ -z "$INPUT" ]] || (( ${#INPUT} > 14 )); do
+			read -p "Please enter a new hostname that is 14 characters or less >> " INPUT
+		done
+		sudo scutil --set HostName $INPUT
+	fi
+	
+	if [[ $(xcodebuild -version 2>&1 | grep -i "error") != "" || $(xcodebuild -version 2>&1 | grep -i "note") != "" ]]; then
+		echo -e "\n!!! Xcode Needs to be installed !!!"
+		echo "If a window pops up please select 'Get Xcode'"
+		echo "Please install Xcode from the App Store, then re-run this script"
+		exit
+	fi
+	
+	# glibtoolize test
+	if test -f $prefix/glibtoolize;	then
+		echo "glibtoolize is installed ..."
+	else
+		echo "glibtoolize is missing ..."
+		DEPEND=false
+	fi
+	# OpenMPI test
+	if test -f $prefix/ompi_info; then
+		echo "OpenMPI is installed ..."
+	else
+		echo "OpenMPI is missing ..."
+		DEPEND=false
+	fi
+	
+else
+	echo "UNKNOWN OS <$Kernel> ! EXITING"
+	exit
+fi
 
 # gcc test
-if test -f /usr/bin/gcc;
-then
-   echo "gcc is installed ..... "
+if test -f /usr/bin/gcc; then
+	echo "gcc is installed ..."
 else
-   echo "gcc is missing ...."   
-   DEPEND=false
+	echo "gcc is missing ..."	
+	DEPEND=false
 fi
-
 # g++ test
-if test -f /usr/bin/g++;
-then
-   echo "g++ is installed ..... "
+if test -f /usr/bin/g++; then
+	echo "g++ is installed ..."
 else
-   echo "g++ is missing ...."
-   DEPEND=false
+	echo "g++ is missing ..."
+	DEPEND=false
 fi
-
-# libtoolize test
-if test -f /usr/bin/libtoolize;
-then
-   echo "libtoolize is installed ..... "
-else
-   echo "libtoolize is missing ...."
-   DEPEND=false
-fi
-
-# libltdl test
-if test -d /usr/share/libtool/libltdl;
-then
-   echo "Libtool is installed and configured properly ...."
-else
-   echo "Libtool may be missing development packages ..."
-   DEPEND=false
-fi
-
 # git test
-if test -f /usr/bin/git;
-then
-   echo "git is installed ..... "
+if test -f /usr/bin/git; then
+	echo "git is installed ..."
 else
-   echo "git is missing ......"
-   DEPEND=false
+	echo "git is missing ..."
+	DEPEND=false
 fi
-
 # m4 test
-if test -f /usr/bin/m4;
-then
-   echo "m4 is installed ..... "
+if test -f /usr/bin/m4; then
+	echo "m4 is installed ..."
 else
-   echo "m4 is missing ...."
-   DEPEND=false
+	echo "m4 is missing ..."
+	DEPEND=false
 fi
-
-# autoconf test
-if test -f /usr/bin/autoconf;
-then
-   echo "auto tools are installed ..... "
-else
-   echo "auto tools are missing ...."
-   DEPEND=false
-fi
-
 # python-config test
-if test -f /usr/bin/python-config;
-then
-   echo "python-config is installed ..... "
+if test -f /usr/bin/python-config; then
+	echo "python-config is installed ..."
 else
-   echo "python-config is missing ...."
-   DEPEND=false
+	echo "python-config is missing ..."
+	DEPEND=false
 fi
-
+# autoconf test
+if test -f $prefix/autoconf; then
+	echo "autoconf is installed ..."
+else
+	echo "autoconf is missing ..."
+	DEPEND=false
+fi
+# autoconf test
+if test -f $prefix/automake; then
+	echo "automake is installed ..."
+else
+	echo "automake is missing ..."
+	DEPEND=false
+fi
 # python3 test
-if test -f /usr/bin/python3;
-then
-   echo "python3 is installed ..... "
+if test -f $prefix/python3; then
+	echo "python3 is installed ..."
 else
-   echo "python3 is missing ...."
-   DEPEND=false
+	echo "python3 is missing ..."
+	DEPEND=false
 fi
-
-# OpenMPI test
-if test -f /usr/bin/ompi_info;
-then
-   echo "OpenMPI is installed ..... "
-else
-   echo "OpenMPI is missing ...."
-   DEPEND=false
-fi
-
 # graphviz test
-if test -f /usr/bin/dot;
-then
-   echo "graphviz is installed ..... "
+if test -f $prefix/dot; then
+	echo "graphviz is installed ..."
 else
-   echo "graphviz is missing ...."
-   DEPEND=false
+	echo "graphviz is missing ..."
+	DEPEND=false
 fi
-
 # PyQt5 test
-qt=$(python3 -c "import PyQt5" 2>&1)
-
-if [[ -z "$qt" ]]
-then
-   echo "PyQt5 is installed ......"
+if [[ -z "$(python3 -c 'import PyQt5' 2>&1)" ]]; then
+	echo "PyQt5 is installed ..."
 else
-   echo "PyQt5 is missing ....."
-   DEPEND=false
+	echo "PyQt5 is missing ..."
+	DEPEND=false
 fi
-   
-if [ $DEPEND == true  ]
-then
-   echo "Proceeding with SST Install......"
-   echo " "
+
+
+
+if $DEPEND; then
+	echo -e "\nProceeding with SST Install\n"
 else
-if [ $OS == centos ]
-   then
-      if [ $gcctest == false ] || [ $gpptest == false ] || [ $m4test == false ] || [ $autoconftest == false ] || [ $libtoolizetest == false ] 
-      then
-         echo "Try running sudo yum group install \"Development Tools\""
-         echo " "
-      fi
-      if [ $pythontest == false ]
-      then
-         echo "Try running sudo yum install python-devel"
-         echo " "
-      fi
-      if [ $python3test == false ]
-      then
-         echo "Try running:"
-         echo "sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm"
-         echo "sudo yum -y install python36u"
-         echo "This will install python3.6...."
-         echo "sudo yum -y install python36u-pip"
-         echo "This will install python36u-pip....."
-         echo "sudo pip3.6 install pyqt5"
-         echo "This will install pyqt5...."
-         echo "sudo ln -s /usr/bin/python3.6 /usr/bin/python3"
-         echo "This will create a logical link to python3 ......"         
-      fi
-
-      if [ $libltdltest == false ]
-      then
-         echo "Try running sudo yum install libtool-ltdl-devel.x86_64"
-         echo " "
-      fi
-      if [ $wgettest == false ]
-      then
-         echo "Try running sudo yum install wget"
-         echo " "
-      fi
-      if [ $graphviztest == false ]
-      then
-         echo "Try running sudo yum install graphviz"
-         echo " "
-      fi
-exit
+	echo -e "\n!!! Missing Dependencies !!!"
+	echo -e "Attempting to install them now, running sstDepend.sh\n"
+	./sstDepend.sh
+	if (( $? != 0 )); then
+		echo -e "\nInstalling Dependencies Failed! EXITING\n"
+		exit 1
+	fi
 fi
-   if [ $OS == ubuntu ]
-   then
-      if [ $gcctest == false ] || [ $gpptest == false ] 
-      then
-         echo "Try running sudo apt install build-essential"
-         echo " "
-      fi
-      if [ $m4test == false ]
-      then
-         echo "Try running sudo apt install m4"
-         echo " "
-      fi
-      if [ $pythontest == false ]
-      then
-         echo "Try running sudo apt install python-dev"
-         echo " "
-      fi
-      if [ $autoconftest == false ]
-      then
-         echo "Try running sudo apt install autoconf"
-         echo " "
-      fi
-      if [ $libltdltest == false ] && [ $libtoolizetest == true ]
-      then
-         echo "Try running sudo apt install libltldl-dev"
-         echo " "
-      fi
-      if [ $libtoolizetest == false ]
-      then
-         echo "Try running sudo apt install libtool-bin"
-         echo " "
-      fi
-      if [ $gittest == false ]
-      then
-         echo "Try running sudo apt install git"
-         echo " "
-      fi
-      if [ $graphviztest == false ]
-      then
-         echo "Try running sudo apt install graphviz"
-         echo " "
-      fi
-   exit
-   fi
-   if [ $OS != centos ] || [ $OS != ubuntu ]
-   then
-      echo "Use your the package installation tool to install missing packages"
-      exit
-   fi  
-fi
-# Request User input
 
-echo -n "Where do you want to Download SST? [$HOME/scratch]>>"
 
-read INPUT
 
-if [ -n "$INPUT" ];then
-    DOWNLOAD=$INPUT
-    INPUT=""
+echo
+read -p "Where do you want to install SST? Full path required [DEFAULT is ~/sst] >> " INPUT
+if [ -n "$INPUT" ]; then
+	dir=$INPUT
 else
-    DOWNLOAD=$HOME/scratch
+	dir=$HOME/sst
 fi
 
-echo -n "Where do you want to Install SST? [$HOME/local]>>"
+source $bashrc
+mkdir -p $dir/scratch
+mkdir -p $dir/local
 
-read INPUT
+export SST_CORE_HOME=$dir/local/sst-core
+export SST_ELEMENTS_HOME=$dir/local/sst-elements
+export PATH=$PATH:$SST_CORE_HOME/bin:$SST_ELEMENTS_HOME/bin
+echo "# BEGIN sstInstall.sh Environment Variables" >> $bashrc
+echo "SST_CORE_HOME=$dir/local/sst-core" >> $bashrc
+echo "SST_ELEMENTS_HOME=$dir/local/sst-elements" >> $bashrc
+echo "PATH=\$PATH:\$SST_CORE_HOME/bin:\$SST_ELEMENTS_HOME/bin" >> $bashrc
+echo "# END sstInstall.sh Environment Variables" >> $bashrc
 
-if [ -n "$INPUT" ];then
-    INSTALL=$INPUT
-    INPUT=""
-else
-    INSTALL=$HOME/local
-fi
-
-# Create Directories
-
-echo " "
-echo "Creating directory structure ....."
-echo " "
-
-
-mkdir $DOWNLOAD
-mkdir $DOWNLOAD/src
-mkdir $INSTALL
-mkdir $INSTALL/packages
-
-# Setup appropriate environment variables, and update .bashrc 
-
-echo "Setting up environment variables in .bashrc ......"
-echo " ">>$HOME/.bashrc
-echo "# BEGIN sstInstall.sh Environment Variables">>$HOME/.bashrc
-echo " ">>$HOME/.bashrc
-echo "export SST_CORE_HOME=$INSTALL/sstcore">>$HOME/.bashrc
-export SST_CORE_HOME=$INSTALL/sstcore
-echo "export PATH=\$SST_CORE_HOME/bin:\$PATH">>$HOME/.bashrc
-export PATH=$SST_CORE_HOME/bin:$PATH
-echo "export SST_ELEMENTS_HOME=$INSTALL/sstelements">>$HOME/.bashrc
-export SST_ELEMENTS_HOME=$INSTALL/sstelements
-echo "export PATH=\$SST_ELEMENTS_HOME/bin:\$PATH">>$HOME/.bashrc
-export PATH=$SST_ELEMENTS_HOME/bin:$PATH
-echo "# END sstInstall.sh Environment Variables">>$HOME/.bashrc
-
-# Install SST Core
-
-echo "Installing SST $VERSION Core ...."
-echo " "
-cd $DOWNLOAD/src
-git clone -b master https://github.com/sstsimulator/sst-core.git
-cd sst-core
+git clone https://github.com/sstsimulator/sst-core.git $dir/scratch/sst-core
+cd $dir/scratch/sst-core
 ./autogen.sh
-if [ $MPIFLAG == Y ] ||[ $MPIFLAG == y ] || [ $MPIFLAG == Yes ] || [ $MPIFLAG == yes ] || [ $MPIFLAG == YES ];then
-   ./configure --prefix=$SST_CORE_HOME 
-else
-   ./configure --prefix=$SST_CORE_HOME --disable-mpi
-fi
+./configure --prefix=$SST_CORE_HOME
 make all install
+cd
 
-# Install SST Elements
-
-echo "Installing SST $Version Elements ...."
-echo " "
-cd $DOWNLOAD/src
-git clone -b master https://github.com/sstsimulator/sst-elements.git
-cd sst-elements
+git clone https://github.com/sstsimulator/sst-elements.git $dir/scratch/sst-elements
+cd $dir/scratch/sst-elements
 ./autogen.sh
 ./configure --prefix=$SST_ELEMENTS_HOME --with-sst-core=$SST_CORE_HOME
 make all install
+cd
 
-if test -x "$SST_CORE_HOME/bin/sst" 
-then
-   echo "*****SST INSTALLATION WAS SUCCESSFUL*****"
-   echo "Your .bashrc has been updated with the correct environment variables"
-   echo "including PATH variable"
-   echo "Please source your .bashrc (source .bashrc) before running SST."
+if test -x $SST_CORE_HOME/bin/sst; then
+	echo "*****SST INSTALLATION WAS SUCCESSFUL*****"
+	echo "Your ~/.bashrc(Linux) or ~/.bash_profile(Mac) has been updated"
+	echo "with the correct environment variables including PATH variable"
+	echo "Please source your ~/.bashrc(Linux) or ~/.bash_profile(Mac) now"
 else
-   echo "*****SST INSTALLATION WAS UNSUCCESSFUL*****"
-   echo "Cleaning up directories ...."
-   echo " "
-   rm -rf $DOWNLOAD
-   rm -rf $INSTALL
-   echo "Cleaning up .bashrc ....."
-   sed -i '/# BEGIN sstInstall.sh Environment Variables/,/# END sstInstall.sh Environment Variables/d' ~/.bashrc
+	echo "*****SST INSTALLATION WAS UNSUCCESSFUL*****"
+	echo "Cleaning up directories ..."
+	rm -rf $dir
+	echo "Cleaning up ~/.bashrc(Linux) or ~/.bash_profile(Mac) ..."
+	if [[ $Kernel == "Linux" ]]; then
+		sed -i '/# BEGIN sstInstall.sh Environment Variables/,/# END sstInstall.sh Environment Variables/d' ~/.bashrc
+	elif [[ $Kernel == "Darwin" ]]; then
+		sed -i '' '/# BEGIN sstInstall.sh Environment Variables/,/# END sstInstall.sh Environment Variables/d' $bashrc
+	fi
 fi
 
