@@ -6,6 +6,8 @@ VERSION=7.1
 
 OS=$(cat /etc/*-release | grep "^ID=" | tr -d '"' | tr -d 'ID=')
 
+#if mac prefix else prefix
+
 echo "This Script will install SST Version $VERSION ..."
 echo " "
 echo "Let us set up the environment first ..."
@@ -14,17 +16,7 @@ echo " "
 # Check Known Dependencies from Clean Install Tests
 
 DEPEND=true
-gcctest=true
-gpptest=true
-libtoolizetest=true
-libltdltest=true
-gittest=true
-m4test=true
-autoconftest=true
-pythontest=true
-wgettest=true
-graphviztest=true
-python3test=true
+
 
 # gcc test
 if test -f /usr/bin/gcc;
@@ -33,7 +25,6 @@ then
 else
    echo "gcc is missing ...."   
    DEPEND=false
-   gcctest=false
 fi
 
 # g++ test
@@ -42,7 +33,6 @@ then
    echo "g++ is installed ..... "
 else
    echo "g++ is missing ...."
-   gpptest=false
    DEPEND=false
 fi
 
@@ -53,7 +43,6 @@ then
 else
    echo "libtoolize is missing ...."
    DEPEND=false
-   libtoolizetest=false
 fi
 
 # libltdl test
@@ -63,7 +52,6 @@ then
 else
    echo "Libtool may be missing development packages ..."
    DEPEND=false
-   libltdltest=false
 fi
 
 # git test
@@ -73,7 +61,6 @@ then
 else
    echo "git is missing ......"
    DEPEND=false
-   gittest=false
 fi
 
 # m4 test
@@ -83,7 +70,6 @@ then
 else
    echo "m4 is missing ...."
    DEPEND=false
-   m4test=false
 fi
 
 # autoconf test
@@ -93,7 +79,6 @@ then
 else
    echo "auto tools are missing ...."
    DEPEND=false
-   autoconftest=false
 fi
 
 # python-config test
@@ -103,7 +88,6 @@ then
 else
    echo "python-config is missing ...."
    DEPEND=false
-   pythontest=false
 fi
 
 # python3 test
@@ -113,17 +97,6 @@ then
 else
    echo "python3 is missing ...."
    DEPEND=false
-   python3test=false
-fi
-
-# wget test
-if test -f /usr/bin/wget;
-then
-   echo "wget is installed ..... "
-else
-   echo "wget is missing ...."
-   DEPEND=false
-   wgettest=false
 fi
 
 # OpenMPI test
@@ -142,7 +115,6 @@ then
 else
    echo "graphviz is missing ...."
    DEPEND=false
-   graphviztest=false
 fi
 
 # PyQt5 test
