@@ -164,11 +164,16 @@ if $DEPEND; then
 	echo -e "\nProceeding with SST Install\n"
 else
 	echo -e "\n!!! Missing Dependencies !!!"
-	echo -e "Attempting to install them now, running sstDepend.sh\n"
-	./sstDepend.sh
-	if (( $? != 0 )); then
-		echo -e "\nInstalling Dependencies Failed! EXITING\n"
-		exit 1
+	read -p "Do you want to install dependencies? [y/n DEFAULT is yes] NEED SUDO! >> " INPUT
+	if [[ -n "$INPUT" || "$INPUT" == "y" || "$INPUT" == "Y" ]]; then
+		echo -e "Attempting to install them now, running sstDepend.sh\n"
+		./sstDepend.sh
+		if (( $? != 0 )); then
+			echo -e "\nInstalling Dependencies Failed! EXITING\n"
+			exit 1
+		fi
+	else
+		echo -e "Exiting\n"
 	fi
 fi
 
