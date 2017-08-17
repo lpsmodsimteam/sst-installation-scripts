@@ -200,16 +200,20 @@ echo "export SST_ELEMENTS_HOME=$dir/local/sst-elements" >> $bashrc
 echo "export PATH=\$PATH:\$SST_CORE_HOME/bin:\$SST_ELEMENTS_HOME/bin" >> $bashrc
 echo "# END sstInstall.sh Environment Variables" >> $bashrc
 
+echo "Building sst-core from github"
 git clone https://github.com/sstsimulator/sst-core.git $dir/scratch/sst-core
 cd $dir/scratch/sst-core
 ./autogen.sh
+echo "./configure --prefix=$SST_CORE_HOME"
 ./configure --prefix=$SST_CORE_HOME
 make all install
 cd
 
+echo "Building sst-elements from github"
 git clone https://github.com/sstsimulator/sst-elements.git $dir/scratch/sst-elements
 cd $dir/scratch/sst-elements
 ./autogen.sh
+echo "./configure --prefix=$SST_ELEMENTS_HOME --with-sst-core=$SST_CORE_HOME $@"
 ./configure --prefix=$SST_ELEMENTS_HOME --with-sst-core=$SST_CORE_HOME "$@"
 make all install
 cd
