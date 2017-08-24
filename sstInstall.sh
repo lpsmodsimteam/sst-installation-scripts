@@ -165,7 +165,7 @@ if $DEPEND; then
 else
 	echo -e "\n!!! Missing Dependencies !!!"
 	read -p "Do you want to install dependencies? [y/n DEFAULT is yes] NEED SUDO! >> " INPUT
-	if [[ -n "$INPUT" || "$INPUT" == "y" || "$INPUT" == "Y" ]]; then
+	if [[ "$INPUT" == "" || "$INPUT" == "y" || "$INPUT" == "Y" ]]; then
 		echo -e "Attempting to install them now, running sstDepend.sh\n"
 		./sstDepend.sh
 		if (( $? != 0 )); then
@@ -174,18 +174,33 @@ else
 		fi
 	else
 		echo -e "Exiting\n"
+		exit 1
 	fi
 fi
 
 
 
 echo
-read -p "Where do you want to install SST? Full path required [DEFAULT is ~/sst] >> " INPUT
+read -p "Where do you want to install SST? [DEFAULT is current dir] >> " INPUT
 if [ -n "$INPUT" ]; then
-	dir=$INPUT
+	tmp=${INPUT//"~"/$HOME}
+	if [ -d "$tmp" ]; then
+		dir=$(cd "$tmp"; pwd)
+	else
+		read -p "Directory $tmp does not exist, would you like to create it? [y/n DEFAULT is yes] >> " INPUT
+		if [[ "$INPUT" == "" || "$INPUT" == "y" || "$INPUT" == "Y" ]]; then
+			mkdir -p "$tmp"
+			dir=$(cd "$tmp"; pwd)
+		else
+			echo -e "Not creating directory, Exiting\n"
+			exit 1
+		fi
+	fi
 else
-	dir=$HOME/sst
+	dir=$(pwd)
 fi
+
+echo -e "Downloading sst into $dir/scratch. Installing to $dir/local\n"
 
 source $bashrc
 mkdir -p $dir/scratch
