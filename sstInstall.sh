@@ -157,7 +157,13 @@ else
 	echo "PyQt5 is missing ..."
 	DEPEND=false
 fi
-
+# python-gitlab test
+if [[ -z "$(python3 -c 'import gitlab' 2>&1)" ]]; then
+	echo "python-gitlab is installed ..."
+else
+	echo "python-gitlab is missing ..."
+	DEPEND=false
+fi
 
 
 if $DEPEND; then
