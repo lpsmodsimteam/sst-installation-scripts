@@ -12,7 +12,8 @@ if [[ $Kernel == "Linux" ]]; then
 		if (( $(echo $version | cut -d'.' -f1) >= 16 )); then
 			sudo apt update
 			sudo apt upgrade -y
-			sudo apt install -y build-essential git libtool-bin automake python-dev mpi-default-dev python3-pyqt5 graphviz
+			sudo apt install -y build-essential git libtool-bin automake python-dev mpi-default-dev python3-pyqt5 graphviz python3-pip
+			sudo pip3 install --upgrade python-gitlab
 		
 		else
 			echo "Un-supported Ubuntu version <$version> ! Must be 16.04 or higher. EXITING"
@@ -26,7 +27,7 @@ if [[ $Kernel == "Linux" ]]; then
 			sudo yum update -y
 			sudo yum groupinstall -y "Development Tools"
 			sudo yum install -y libtool-ltdl-devel python-devel openmpi-devel python36u-pip graphviz
-			sudo pip3.6 install pyqt5
+			sudo pip3.6 install --upgrade pyqt5 python-gitlab
 			sudo ln -s /usr/bin/python3.6 /usr/bin/python3
 			echo "PATH=\$PATH:/usr/lib64/openmpi/bin/" >> ~/.bashrc
 		
@@ -48,6 +49,7 @@ elif [[ $Kernel == "Darwin" ]]; then
 		brew update
 		brew upgrade
 		brew install automake libtool openmpi python3 graphviz pyqt5
+		sudo pip3 install --upgrade python-gitlab
 		
 	else
 		echo "Un-supported MacOS version <$version> ! Must be 10.13 or higher. EXITING"
