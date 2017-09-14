@@ -219,18 +219,7 @@ echo "# BEGIN sstInstall.sh Environment Variables" >> $bashrc
 echo "export SST_CORE_HOME=$dir/local/sst-core" >> $bashrc
 echo "export SST_ELEMENTS_HOME=$dir/local/sst-elements" >> $bashrc
 echo "export PATH=\$PATH:\$SST_CORE_HOME/bin:\$SST_ELEMENTS_HOME/bin" >> $bashrc
-echo "function sst {" >> $bashrc
-echo "	\$SST_CORE_HOME/bin/sst \$@ 2>mangled.txt" >> $bashrc
-echo "	if [ -s mangled.txt ]" >> $bashrc
-echo "	then" >> $bashrc
-echo "		\$SST_CORE_HOME/bin/demangle" >> $bashrc
-echo "		cat Demangled.txt" >> $bashrc
-echo "		rm mangled.txt" >> $bashrc
-echo "		rm Demangled.txt" >> $bashrc
-echo "	else" >> $bashrc
-echo "		rm mangled.txt" >> $bashrc
-echo "	fi" >> $bashrc
-echo "}" >> $bashrc
+echo "alias sst='\$SST_CORE_HOME/bin/sst 2> >(c++filt)'" >> $bashrc
 echo "# END sstInstall.sh Environment Variables" >> $bashrc
 
 echo "Building sst-core from github"
