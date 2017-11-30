@@ -244,7 +244,7 @@ if test -x $SST_CORE_HOME/bin/sst; then
 	echo "*****SST INSTALLATION WAS SUCCESSFUL*****"
 	echo "Your ~/.bashrc(Linux) or ~/.bash_profile(Mac) has been updated"
 	echo "with the correct environment variables including PATH variable"
-	echo "Please source your ~/.bashrc(Linux) or ~/.bash_profile(Mac) now"
+	echo -e "\033[0;31m!!! Please source your ~/.bashrc(Linux) or ~/.bash_profile(Mac) now !!!\033[0m"
 else
 	echo "*****SST INSTALLATION WAS UNSUCCESSFUL*****"
 	echo "Cleaning up directories ..."
