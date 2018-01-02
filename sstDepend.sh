@@ -29,7 +29,7 @@ if [[ $Kernel == "Linux" ]]; then
 			sudo yum install -y libtool-ltdl-devel python-devel openmpi-devel python36u-pip graphviz
 			sudo pip3.6 install --upgrade pyqt5 python-gitlab
 			sudo ln -s /usr/bin/python3.6 /usr/bin/python3
-			echo "PATH=\$PATH:/usr/lib64/openmpi/bin/" >> ~/.bashrc
+			echo "export PATH=\$PATH:/usr/lib64/openmpi/bin/" >> ~/.bashrc
 		
 		else
 			echo "Un-supported Centos version <$version> ! EXITING"
