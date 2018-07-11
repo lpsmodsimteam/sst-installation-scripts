@@ -12,6 +12,9 @@ if [[ $Kernel == "Linux" ]]; then
 	OS=$(cat /etc/*-release | grep "^ID=" | tr -d '"' | tr -d 'ID=')
 	version=$(cat /etc/*-release | grep "^VERSION_ID=" | tr -d '"' | tr -d 'VERSION_ID=')
 	bashrc=~/.bashrc
+	if [ ! -f $bashrc ]; then
+		touch $bashrc
+	fi
 	sed -i '/# BEGIN sstInstall.sh Environment Variables/,/# END sstInstall.sh Environment Variables/d' $bashrc
 	
 	# libtoolize test
@@ -49,6 +52,9 @@ elif [[ $Kernel == "Darwin" ]]; then
 	prefix=/usr/local/bin
 	version=$(sw_vers -productVersion)
 	bashrc=~/.bash_profile
+	if [ ! -f $bashrc ]; then
+		touch $bashrc
+	fi
 	sed -i '' '/# BEGIN sstInstall.sh Environment Variables/,/# END sstInstall.sh Environment Variables/d' $bashrc
 	
 	if (( $(hostname | wc -c) > 15 )); then
