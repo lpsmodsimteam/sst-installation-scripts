@@ -177,7 +177,7 @@ if $DEPEND; then
 else
 	echo -e "\n!!! Missing Dependencies !!!"
 	read -p "Do you want to install dependencies? [y/n DEFAULT is yes] NEED SUDO! >> " INPUT
-	if [[ "$INPUT" == "" || "$INPUT" == "y" || "$INPUT" == "Y" ]]; then
+	if [[ "$INPUT" == "" || "$INPUT" == "y" || "$INPUT" == "Y" || "$INPUT" == "yes" || "$INPUT" == "Yes" || "$INPUT" == "YES" ]]; then
 		echo -e "Attempting to install them now, running sstDepend.sh\n"
 		./sstDepend.sh
 		if (( $? != 0 )); then
